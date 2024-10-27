@@ -1,43 +1,56 @@
 #include <iostream>
 #include <Windows.h>
+#define N 5  
 
-const int N = 10;
-struct Queue {
-    int q[N];
-    int start, finish;
+struct CircularQueue {
+    int q[N];      
+    int start;     
+    int finish;    
 
-    Queue() : start(0), finish(0) {}
+
+    CircularQueue() : start(-1), finish(-1) {}
+
+ 
+    bool isEmpty() const {
+        return start == -1;
+    }
+
+
+    bool isFull() const {
+        return (finish + 1) % N == start;
+    }
+
 
     void push(int n) {
-        if (size() == N - 1) {
+        if (isFull()) {
             std::cout << "Черга переповнена\n";
             return;
         }
+
+        if (isEmpty()) { 
+            start = 0;
+        }
+
+        finish = (finish + 1) % N; 
         q[finish] = n;
-        finish = (finish + 1) % N;
     }
+
 
     int pop() {
         if (isEmpty()) {
             std::cout << "Черга порожня\n";
             return -1;
         }
-        int a = q[start];
-        start = (start + 1) % N;
-        return a;
-    }
 
-    bool isEmpty() const {
-        return start == finish;
-    }
-
-    int size() const {
-        return (finish + N - start) % N;
-    }
-
-    void clear() {
-        start = 0;
-        finish = 0;
+        int element = q[start];
+        if (start == finish) { 
+            start = -1;
+            finish = -1;
+        }
+        else {
+            start = (start + 1) % N;  
+        }
+        return element;
     }
 
     int front() const {
@@ -49,26 +62,37 @@ struct Queue {
 
     int back() const {
         if (!isEmpty())
-            return q[(finish + N - 1) % N];
+            return q[finish];
         std::cout << "Черга порожня\n";
         return -1;
+    }
+
+    int size() const {
+        if (isEmpty())
+            return 0;
+        if (finish >= start)
+            return finish - start + 1;
+        return N - (start - finish - 1);
     }
 };
 
 int main() {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    Queue q;
-
-    for (int i = 1; i < N; i++) {
-        q.push(i);
+    CircularQueue cq;
+    for (int i = 0; i < N; i++) {
+        cq.push(i);
     }
-    std::cout << "Перший елемент " << q.front() << "\n";
-    std::cout << "Останній елемент " << q.back() << "\n";
-    std::cout << "Розмір черги " << q.size() << "\n";
+    std::cout << "Перший елемент: " << cq.front() << "\n";
+    std::cout << "Останній елемент: " << cq.back() << "\n";
+    std::cout << "Розмір черги: " << cq.size() << "\n";
 
-    std::cout << "Видаляємо елемент " << q.pop() << "\n";
-    std::cout << "Розмір черги після видалення " << q.size() << "\n";
+    cq.pop();
+    std::cout << "Перший елемент після видалення: " << cq.front() << "\n";
+    std::cout << "Розмір черги після видалення: " << cq.size() << "\n";
+
+    cq.push(5);
+    std::cout << "Останній елемент після додавання: " << cq.back() << "\n";
 
     return 0;
 }
